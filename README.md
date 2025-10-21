@@ -1,44 +1,61 @@
-# TravelPlannerApp
+# ✈️ AI Travel Itinerary Planner
 
-A single-file web app (travelplannerapp.html) for planning trips, adding destinations, and exporting/importing simple trip data.
+CS4680 Prompt Engineering Final Project - An AI-powered web app that generates personalized travel itineraries in seconds.
 
-## File
-- travelplannerapp.html — main application file. Place in the same folder as this README.
+## Problem Statement
 
-## Purpose
-Lightweight client-side travel planner to create trips, manage destinations, estimate dates, and export/import trip data as JSON.
+Trip planning is time-consuming and overwhelming. Travelers struggle with information overload, generic recommendations, and difficulty balancing interests with budget constraints. This app solves these problems by generating personalized, expert-level itineraries instantly.
 
 ## Features
-- Create and name trips
-- Add/edit/remove destinations
-- Rearrange destinations
-- Set travel dates and notes
-- Export trip data to JSON
-- Import trip JSON to restore a trip
-- Works entirely in the browser (no server required)
 
-## Requirements
-- Modern web browser (Chrome, Edge, Firefox, Safari)
-- Optional: static file server for CORS/Live Reload (recommended for development)
+- Personalized day-by-day itineraries based on interests, budget, and travel pace
+- Detailed explanations for each recommendation
+- Budget breakdowns and insider tips
+- Download itineraries for offline use
+- Clean, responsive UI
 
-## Quick start
-1. Copy `travelplannerapp.html` to a local folder (for example the project folder).
-2. Open the file in your browser:
-    - Double-click the file, or
-    - Right-click → Open with → your browser
-3. (Optional) Run a local server for consistent behavior:
-    - Python 3: `python -m http.server 8000`
-    - Then open `http://localhost:8000/travelplannerapp.html`
+## Prompt Engineering Techniques
+
+### 1. Persona Pattern
+Creates an expert travel guide persona with 15+ years of experience. Adapts recommendations based on budget level (street food for budget travelers, fine dining for luxury) and pace preferences.
+
+**Location**: `buildSystemPrompt()` function
+
+### 2. Template/Few-Shot Pattern
+Provides structured output format with clear sections (Overview, Day-by-Day, Budget Breakdown, Insider Tips, Packing List). Ensures consistent, well-organized itineraries.
+
+**Location**: `buildUserPrompt()` function
+
+## Tech Stack
+
+- **Frontend**: HTML, JavaScript, Tailwind CSS
+- **AI**: DeepSeek via OpenRouter API (100x cheaper than GPT-4)
+- **Deployment**: GitHub Pages
+
+## Setup
+
+1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/ai-travel-planner.git
+   ```
+
+2. Get OpenRouter API key at [openrouter.ai/keys](https://openrouter.ai/keys)
+
+3. Add your API key to `travel-planner.html`:
+   ```javascript
+   const OPENROUTER_API_KEY = 'sk-or-v1-your-key-here';
+   ```
+
+4. Open `travel-planner.html` in your browser
 
 ## Usage
-- Create a new trip and give it a name.
-- Click "Add destination" to add locations and optional notes/dates.
-- Reorder or delete destinations as needed.
-- Use "Export" to download a JSON file of the trip.
-- Use "Import" to upload a previously exported JSON to restore the trip.
 
-## Development notes
-- Single HTML file — markup, styles, and scripts live in the same file.
-- To edit: open in a code editor (VS Code, Sublime, etc.).
-- For small changes, refresh the browser to see updates.
-- Consider using browser DevTools for debugging.
+1. Enter destination and trip duration
+2. Select budget level (Budget/Moderate/Luxury)
+3. Choose interests (Food, History, Nature, etc.)
+4. Add any special requirements
+5. Click "Generate My Itinerary"
+
+## Author
+
+**Natasha Wong** - CS4680 Fall 2025
