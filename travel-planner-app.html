@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Itinerary Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .itinerary-section {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-900 mb-2">✈️ AI Travel Planner</h1>
+            <p class="text-gray-600">Your personalized travel itinerary, powered by AI</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Plan Your Trip</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                    <input type="text" id="destination" placeholder="e.g., Tokyo, Paris, New York" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Duration (days)</label>
+                    <input type="number" id="duration" value="3" min="1" max="14"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Budget Level</label>
+                    <select id="budget" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="budget">Budget ($50-100/day)</option>
+                        <option value="moderate" selected>Moderate ($100-200/day)</option>
+                        <option value="luxury">Luxury ($200+/day)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Travel Pace</label>
+                    <select id="pace" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <option value="relaxed">Relaxed</option>
+                        <option value="moderate" selected>Moderate</option>
+                        <option value="packed">Packed</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Interests (select all that apply)</label>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Food & Dining" checked>
+                        <span class="text-sm">🍽️ Food</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="History & Culture" checked>
+                        <span class="text-sm">🏛️ History</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Nature & Outdoors">
+                        <span class="text-sm">🌳 Nature</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Shopping">
+                        <span class="text-sm">🛍️ Shopping</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Nightlife & Entertainment">
+                        <span class="text-sm">🎉 Nightlife</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Art & Museums">
+                        <span class="text-sm">🎨 Art</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Adventure & Sports">
+                        <span class="text-sm">⛰️ Adventure</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" class="interest-checkbox" value="Photography">
+                        <span class="text-sm">📸 Photography</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Special Requirements (optional)</label>
+                <input type="text" id="requirements" placeholder="e.g., vegetarian, wheelchair accessible, traveling with kids"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+            </div>
+
+            <button onclick="generateItinerary()" 
+                    class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center">
+                <span id="buttonText">Generate My Itinerary</span>
+                <span id="loadingSpinner" class="loading ml-2" style="display:none;"></span>
+            </button>
+        </div>
+
+        <!-- Output Section -->
+        <div id="output" class="hidden">
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Your Personalized Itinerary</h2>
+                    <button onclick="downloadItinerary()" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">
+                        📥 Download
+                    </button>
+                </div>
+                <div id="itineraryContent" class="prose prose-indigo max-w-none"></div>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error" class="hidden bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mt-4">
+            <p class="font-semibold">Error:</p>
+            <p id="errorMessage"></p>
+        </div>
+    </div>
+
+    <script>
+        // HARDCODED API KEY - Replace with your OpenRouter API key
+        const OPENROUTER_API_KEY = 'YOUR_API_KEY_HERE';
+        
+        let generatedItinerary = '';
+
+        async function generateItinerary() {
+            const destination = document.getElementById('destination').value.trim();
+            const duration = document.getElementById('duration').value;
+            const budget = document.getElementById('budget').value;
+            const pace = document.getElementById('pace').value;
+            const requirements = document.getElementById('requirements').value.trim();
+
+            // Get selected interests
+            const interestCheckboxes = document.querySelectorAll('.interest-checkbox:checked');
+            const interests = Array.from(interestCheckboxes).map(cb => cb.value);
+
+            // Validation
+            if (!destination) {
+                showError('Please enter a destination');
+                return;
+            }
+            if (interests.length === 0) {
+                showError('Please select at least one interest');
+                return;
+            }
+            if (!OPENROUTER_API_KEY || OPENROUTER_API_KEY === 'YOUR_API_KEY_HERE') {
+                showError('API key not configured. Please add your OpenRouter API key to the code.');
+                return;
+            }
+
+            // Hide error and output
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('output').classList.add('hidden');
+
+            // Show loading
+            document.getElementById('buttonText').textContent = 'Generating...';
+            document.getElementById('loadingSpinner').style.display = 'inline-block';
+
+            try {
+                // Build the prompt using PROMPT ENGINEERING PATTERNS
+                const systemPrompt = buildSystemPrompt(budget, pace);
+                const userPrompt = buildUserPrompt(destination, duration, interests, requirements, budget);
+
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'AI Travel Planner'
+                    },
+                    body: JSON.stringify({
+                        model: 'deepseek/deepseek-chat',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: userPrompt }
+                        ],
+                        temperature: 0.7,
+                        max_tokens: 2500
+                    })
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.error?.message || 'API request failed');
+                }
+
+                const data = await response.json();
+                generatedItinerary = data.choices[0].message.content;
+
+                // Display the itinerary
+                displayItinerary(generatedItinerary);
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                // Reset button
+                document.getElementById('buttonText').textContent = 'Generate My Itinerary';
+                document.getElementById('loadingSpinner').style.display = 'none';
+            }
+        }
+
+        function buildSystemPrompt(budget, pace) {
+            // PATTERN 1: PERSONA PATTERN
+            // Creating an expert persona with specific characteristics
+            let persona = `You are an experienced travel guide and itinerary planner with 15+ years of experience creating personalized trips. You have deep knowledge of destinations worldwide, including hidden gems, local customs, and practical travel tips.
+
+Your expertise includes:
+- Understanding cultural nuances and local etiquette
+- Finding authentic experiences beyond tourist traps
+- Optimizing travel routes and timing
+- Providing realistic time estimates
+- Balancing popular attractions with off-beaten-path discoveries
+- Budget-conscious recommendations without sacrificing quality`;
+
+            // Add budget-specific guidance
+            if (budget === 'budget') {
+                persona += `\n\nFor this budget level, focus on: free attractions, street food, public transportation, local neighborhoods, and money-saving tips.`;
+            } else if (budget === 'luxury') {
+                persona += `\n\nFor this luxury level, focus on: premium experiences, fine dining, private transportation, exclusive access, and high-end accommodations.`;
+            }
+
+            // Add pace-specific guidance
+            if (pace === 'relaxed') {
+                persona += `\n\nCreate a relaxed itinerary with plenty of downtime, leisurely meals, and no more than 2-3 activities per day.`;
+            } else if (pace === 'packed') {
+                persona += `\n\nCreate an action-packed itinerary that maximizes experiences, with 4-5 activities per day and efficient transitions.`;
+            }
+
+            persona += `\n\nAlways explain WHY you're recommending each activity or restaurant - this helps travelers understand the value and make informed decisions.`;
+
+            return persona;
+        }
+
+        function buildUserPrompt(destination, duration, interests, requirements, budget) {
+            // PATTERN 2: FEW-SHOT PATTERN + TEMPLATE PATTERN
+            // Providing example structure to guide the output format
+            
+            let prompt = `Create a ${duration}-day personalized travel itinerary for ${destination}.
+
+Traveler Profile:
+- Interests: ${interests.join(', ')}
+- Budget: ${budget}
+${requirements ? `- Special Requirements: ${requirements}` : ''}
+
+Please structure the itinerary as follows:
+
+**OVERVIEW**
+Brief introduction (2-3 sentences) about what makes this itinerary special and what the traveler will experience.
+
+**DAY-BY-DAY ITINERARY**
+
+For each day, provide:
+
+**Day X: [Theme/Focus]**
+
+**Morning (9:00 AM - 12:00 PM)**
+- Activity name and brief description
+- Why it's recommended (connection to traveler's interests)
+- Estimated cost
+- Pro tip
+
+**Afternoon (12:00 PM - 5:00 PM)**
+- Activity/restaurant name and brief description
+- Why it's recommended
+- Estimated cost
+- Pro tip
+
+**Evening (5:00 PM - 9:00 PM)**
+- Activity/restaurant name and brief description
+- Why it's recommended
+- Estimated cost
+- Pro tip
+
+**BUDGET BREAKDOWN**
+Provide estimated daily costs broken down by category (food, activities, transportation).
+
+**INSIDER TIPS**
+- 3-4 practical tips specific to this destination (best transport options, common tourist mistakes to avoid, money-saving tricks, cultural dos and don'ts)
+
+**WHAT TO PACK**
+- Brief list of essential items for this specific trip
+
+Format the response in clean markdown with proper headers, bold text, and bullet points.`;
+
+            return prompt;
+        }
+
+        function displayItinerary(content) {
+            const outputDiv = document.getElementById('output');
+            const contentDiv = document.getElementById('itineraryContent');
+            
+            // Convert markdown-style formatting to HTML
+            let htmlContent = content
+                .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g, '<em>$1</em>')
+                .replace(/^### (.+)$/gm, '<h3 class="text-xl font-semibold text-gray-800 mt-6 mb-3">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h2 class="text-2xl font-bold text-indigo-900 mt-8 mb-4">$1</h2>')
+                .replace(/^# (.+)$/gm, '<h1 class="text-3xl font-bold text-indigo-900 mt-8 mb-4">$1</h1>')
+                .replace(/^- (.+)$/gm, '<li class="ml-4 mb-2">$1</li>')
+                .replace(/\n\n/g, '</p><p class="mb-4">');
+            
+            htmlContent = '<p class="mb-4">' + htmlContent + '</p>';
+            
+            // Wrap lists
+            htmlContent = htmlContent.replace(/(<li class="ml-4 mb-2">.+<\/li>)/gs, '<ul class="list-disc mb-4">$1</ul>');
+            
+            contentDiv.innerHTML = htmlContent;
+            outputDiv.classList.remove('hidden');
+            
+            // Smooth scroll to output
+            outputDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorDiv.classList.remove('hidden');
+            errorDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function downloadItinerary() {
+            const destination = document.getElementById('destination').value.trim();
+            const blob = new Blob([generatedItinerary], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${destination.replace(/\s+/g, '_')}_Itinerary.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('destination').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateItinerary();
+        });
+    </script>
+</body>
+</html>
